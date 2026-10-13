@@ -1,0 +1,10 @@
+rfm_segment,customers,pct_of_customers,revenue,pct_of_revenue,avg_recency_days,avg_orders,avg_revenue_per_customer
+"1. Champions (repeat, recent)",1203,1.29,325603.02,2.46,89.2,2.153,270.66
+"2. Loyal, cooling",1163,1.25,297901.46,2.25,265.5,2.087,256.15
+"3. Repeat buyers, lapsed",435,0.47,104904.27,0.79,465.3,2.078,241.16
+4. New high-value,14482,15.51,3869083.11,29.26,92.2,1.0,267.16
+5. New low-value,21659,23.2,1202580.53,9.1,90.1,1.0,55.52
+6. Cooling high-value,13887,14.87,3659567.08,27.68,268.4,1.0,263.52
+7. Cooling low-value,22293,23.88,1244313.04,9.41,268.6,1.0,55.82
+8. Lost high-value,6837,7.32,1886830.86,14.27,475.5,1.0,275.97
+9. Lost low-value,11399,12.21,630714.74,4.77,473.1,1.0,55.33

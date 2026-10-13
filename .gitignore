@@ -1,0 +1,28 @@
+# Raw data and the warehouse are re-created by `python run_all.py`
+data/raw/
+data/*.duckdb
+data/*.duckdb.wal
+
+# Power BI CSV exports are regenerated too (about 45 MB)
+powerbi/data/*.csv
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Office / Power BI temp files
+~$*.xlsx
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Power BI working copies (the published report is powerbi/Olist_Analytics.pbix)
+powerbi/obsli.pbix
+powerbi/Olist_Analytics_Dashboard*.pbix

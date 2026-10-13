@@ -1,0 +1,57 @@
+measure,filter_context,expected_value,unit,display
+Total Revenue,No filters,13221498.11,currency,"13,221,498.11"
+Total Revenue,dim_date[year_month] = 2018-08,838576.64,currency,"838,576.64"
+Total Revenue,dim_product[category] = health_beauty,1233131.72,currency,"1,233,131.72"
+Total Revenue,dim_date[is_analysis_window] = 1 (page filter on pages 1 and 3),13181027.13,currency,"13,181,027.13"
+Freight Revenue,No filters,2202965.54,currency,"2,202,965.54"
+Total Orders,No filters,96478.0,int,"96,478"
+Total Orders,dim_date[is_analysis_window] = 1 (page filter on pages 1 and 3),96211.0,int,"96,211"
+Total Orders,dim_product[category] = health_beauty,8647.0,int,"8,647"
+Items Sold,No filters,110197.0,int,"110,197"
+AOV,No filters,137.04,currency,137.04
+AOV,dim_date[year_month] = 2018-08,132.04,currency,132.04
+Avg Basket Size,No filters,1.142,dec,1.142
+Freight % of Revenue,No filters,16.66,pct,16.66%
+Revenue MoM %,dim_date[year_month] = 2018-08,-3.38,pct,-3.38%
+Revenue MoM %,dim_date[year_month] = 2017-11 (Black Friday month),52.37,pct,52.37%
+Revenue YoY %,dim_date[year_month] = 2018-08,51.18,pct,51.18%
+Revenue Rolling 3M,dim_date[year_month] = 2018-08 (Jun+Jul+Aug 2018),2562607.96,currency,"2,562,607.96"
+Revenue YTD,dim_date[year_month] = 2018-08 (Jan-Aug 2018),7218125.12,currency,"7,218,125.12"
+Cumulative Revenue,dim_date[year_month] = 2017-12 (everything up to 31-Dec-2017),6003372.99,currency,"6,003,372.99"
+Active Customers,No filters,93358.0,int,"93,358"
+Active Customers,dim_date[year_month] = 2018-08,6310.0,int,"6,310"
+New Customers,dim_date[year_month] = 2018-08,6144.0,int,"6,144"
+Returning Customers,dim_date[year_month] = 2018-08,200.0,int,200
+Returning Customer %,dim_date[year_month] = 2018-08,3.17,pct,3.17%
+Repeat Customers,No filters,2801.0,int,"2,801"
+Repeat Customer Rate,No filters,3.0,pct,3.00%
+Repeat Customer Rate,dim_date[year] = 2018 (2+ orders within 2018),2.1,pct,2.10%
+Revenue per Customer,No filters,141.62,currency,141.62
+Cohort Retention %,"cohort_month = 2017-05, months_since_first_order = 1",0.464,pct,0.46%
+Cohort Retention %,"cohort_month = 2017-11, months_since_first_order = 1",0.567,pct,0.57%
+Cohort Retention %,"cohort_month = 2017-05, months_since_first_order = 0",100.0,pct,100.00%
+Orders Placed,No filters,99441.0,int,"99,441"
+Delivered Orders,No filters,96478.0,int,"96,478"
+Delivered Order Rate,No filters,97.02,pct,97.02%
+Late Delivery %,No filters,6.77,pct,6.77%
+Late Delivery %,dim_geography[state] = RJ,12.11,pct,12.11%
+Late Delivery %,dim_date[year_month] = 2018-03,18.96,pct,18.96%
+Avg Delivery Days,No filters,12.5,dec,12.5
+Avg Delivery Days,dim_geography[state] = SP,8.7,dec,8.7
+Avg Delay vs Promise,No filters,-11.88,dec,-11.88
+Avg Review Score,No filters,4.156,dec,4.156
+Low Review %,No filters,12.81,pct,12.81%
+Avg Review - Late,No filters,2.27,dec,2.27
+Avg Review - On Time,No filters,4.29,dec,4.29
+Category Revenue Share %,dim_product[category] = health_beauty,9.33,pct,9.33%
+Category Rank,dim_product[category] = watches_gifts,2.0,int,2
+Pareto Cumulative %,dim_product[category] = watches_gifts (rank 2),18.15,pct,18.15%
+Pareto Cumulative %,dim_product[category] = toys (rank 10),62.43,pct,62.43%
+Active Sellers,No filters,2970.0,int,"2,970"
+Late Delivery % (Product View),No filters (must equal Late Delivery %),6.77,pct,6.77%
+Late Delivery % (Product View),dim_seller[seller_id] = 4869f7a5dfa277a7dca6462dcf3b52b2,10.5,pct,10.50%
+Avg Review (Product View),No filters (must equal Avg Review Score),4.156,dec,4.156
+Avg Review (Product View),dim_product[category] = health_beauty,4.229,dec,4.229
+Avg Review (Product View),dim_product[category] = office_furniture,3.645,dec,3.645
+Credit Card Order Share,No filters,75.48,pct,75.48%
+Avg Installments (Card),No filters,3.55,dec,3.55

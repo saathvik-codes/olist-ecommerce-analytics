@@ -1,0 +1,280 @@
+// =============================================================================
+// Olist E-Commerce Analytics - DAX measures
+//
+// How to load them (see BUILD_GUIDE.md, step 5):
+//   Option A (fast): Power BI Desktop > DAX query view > paste this whole file >
+//                    click "Update model with changes" > then Run to see the check row.
+//   Option B (learn by doing): Modeling > New measure, and paste one expression at a time
+//                    (everything after the "=" of each MEASURE line).
+//
+// All measures live on fact_orders. Expected values for every measure are in
+// EXPECTED_VALUES.md, computed independently in SQL (sql/validation/dax_expected_values.sql).
+// These measures have NOT been executed in Power BI by the author of this file -
+// check each one against EXPECTED_VALUES.md after you load it.
+//
+// Conventions
+//   * "Revenue" = item price on DELIVERED orders. Freight is separate.
+//   * Sales measures read fact_order_items, so they respond to every dimension
+//     (date, customer, geography, product, seller).
+//   * Delivery / review / customer measures read fact_orders, so they respond to
+//     date, customer and geography - NOT to product or seller slicers. Use the
+//     "(Product View)" measures on the Products & Sellers page instead.
+//   * Flags are 0/1 columns that are SUMmed. Never test a nullable column with
+//     "= 0" in DAX: BLANK = 0 is TRUE, which silently counts missing rows.
+// =============================================================================
+DEFINE
+
+    // ------------------------------------------------------------------ SALES
+    // Item revenue on delivered orders (the headline sales number).
+    MEASURE fact_orders[Total Revenue] =
+        CALCULATE ( SUM ( fact_order_items[price] ), fact_order_items[is_delivered] = 1 )
+
+    // Freight charged to customers on delivered orders.
+    MEASURE fact_orders[Freight Revenue] =
+        CALCULATE ( SUM ( fact_order_items[freight_value] ), fact_order_items[is_delivered] = 1 )
+
+    // Number of delivered orders (distinct, because the item table has one row per line).
+    MEASURE fact_orders[Total Orders] =
+        CALCULATE ( DISTINCTCOUNT ( fact_order_items[order_id] ), fact_order_items[is_delivered] = 1 )
+
+    // Number of item lines sold on delivered orders.
+    MEASURE fact_orders[Items Sold] =
+        CALCULATE ( COUNTROWS ( fact_order_items ), fact_order_items[is_delivered] = 1 )
+
+    // Average order value: revenue per delivered order.
+    MEASURE fact_orders[AOV] =
+        DIVIDE ( [Total Revenue], [Total Orders] )
+
+    // Average number of items in a delivered order.
+    MEASURE fact_orders[Avg Basket Size] =
+        DIVIDE ( [Items Sold], [Total Orders] )
+
+    // Freight as a share of item revenue (how heavy shipping cost is for the customer).
+    MEASURE fact_orders[Freight % of Revenue] =
+        DIVIDE ( [Freight Revenue], [Total Revenue] )
+
+    // ------------------------------------------------------ TIME INTELLIGENCE
+    // Month-over-month revenue growth. The is_analysis_window filter blanks the result
+    // when the previous month is a partial month (2016, Sep/Oct-2018).
+    MEASURE fact_orders[Revenue MoM %] =
+        VAR PrevMonth =
+            CALCULATE (
+                [Total Revenue],
+                DATEADD ( dim_date[date], -1, MONTH ),
+                dim_date[is_analysis_window] = 1
+            )
+        RETURN
+            DIVIDE ( [Total Revenue] - PrevMonth, PrevMonth )
+
+    // Year-over-year revenue growth against the same period last year.
+    MEASURE fact_orders[Revenue YoY %] =
+        VAR PrevYear =
+            CALCULATE (
+                [Total Revenue],
+                SAMEPERIODLASTYEAR ( dim_date[date] ),
+                dim_date[is_analysis_window] = 1
+            )
+        RETURN
+            DIVIDE ( [Total Revenue] - PrevYear, PrevYear )
+
+    // Revenue for the current month plus the two before it (uses month_index so that
+    // month lengths can never leak extra days into the window).
+    MEASURE fact_orders[Revenue Rolling 3M] =
+        VAR LastMonth = MAX ( dim_date[month_index] )
+        RETURN
+            CALCULATE (
+                [Total Revenue],
+                REMOVEFILTERS ( dim_date ),
+                dim_date[month_index] >= LastMonth - 2 && dim_date[month_index] <= LastMonth
+            )
+
+    // Revenue from 1 January to the end of the period in context.
+    MEASURE fact_orders[Revenue YTD] =
+        TOTALYTD ( [Total Revenue], dim_date[date] )
+
+    // Running total of revenue from the first order to the end of the period in context.
+    MEASURE fact_orders[Cumulative Revenue] =
+        VAR MaxDateInContext = MAX ( dim_date[date] )
+        RETURN
+            CALCULATE ( [Total Revenue], FILTER ( ALL ( dim_date ), dim_date[date] <= MaxDateInContext ) )
+
+    // -------------------------------------------------------------- CUSTOMERS
+    // Distinct customers (people) with at least one delivered order in context.
+    MEASURE fact_orders[Active Customers] =
+        CALCULATE ( DISTINCTCOUNT ( fact_orders[customer_key] ), fact_orders[is_delivered] = 1 )
+
+    // Customers whose FIRST delivered order falls in the period in context.
+    MEASURE fact_orders[New Customers] =
+        CALCULATE (
+            DISTINCTCOUNT ( fact_orders[customer_key] ),
+            fact_orders[is_delivered] = 1,
+            fact_orders[customer_order_seq] = 1
+        )
+
+    // Customers ordering in the period who had already bought before (2nd+ order).
+    MEASURE fact_orders[Returning Customers] =
+        CALCULATE (
+            DISTINCTCOUNT ( fact_orders[customer_key] ),
+            fact_orders[is_delivered] = 1,
+            fact_orders[customer_order_seq] > 1
+        )
+
+    // Share of the period's active customers who were returning customers.
+    MEASURE fact_orders[Returning Customer %] =
+        DIVIDE ( [Returning Customers], [Active Customers] )
+
+    // Customers with 2 or more delivered orders inside the current filter context.
+    MEASURE fact_orders[Repeat Customers] =
+        COUNTROWS (
+            FILTER (
+                VALUES ( fact_orders[customer_key] ),
+                CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1 ) >= 2
+            )
+        )
+
+    // Share of customers who bought more than once (with no date filter = lifetime repeat rate).
+    MEASURE fact_orders[Repeat Customer Rate] =
+        DIVIDE ( [Repeat Customers], [Active Customers] )
+
+    // Average revenue per active customer.
+    MEASURE fact_orders[Revenue per Customer] =
+        DIVIDE ( [Total Revenue], [Active Customers] )
+
+    // Cohort retention: customers active N months after their first order, as a share of
+    // the cohort. Use in a matrix: rows = dim_customer[cohort_month],
+    // columns = fact_orders[months_since_first_order]. Do not put a date slicer on it.
+    MEASURE fact_orders[Cohort Retention %] =
+        VAR CohortSize =
+            CALCULATE ( [Active Customers], fact_orders[months_since_first_order] = 0 )
+        RETURN
+            DIVIDE ( [Active Customers], CohortSize )
+
+    // ------------------------------------------------- DELIVERY & SATISFACTION
+    // Every order placed, whatever its status.
+    MEASURE fact_orders[Orders Placed] =
+        COUNTROWS ( fact_orders )
+
+    // Orders with status = delivered (order-grain twin of [Total Orders]).
+    MEASURE fact_orders[Delivered Orders] =
+        CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = 1 )
+
+    // Share of placed orders that were delivered (fulfilment rate).
+    MEASURE fact_orders[Delivered Order Rate] =
+        DIVIDE ( [Delivered Orders], [Orders Placed] )
+
+    // Share of delivered orders that arrived after the promised date.
+    MEASURE fact_orders[Late Delivery %] =
+        DIVIDE ( SUM ( fact_orders[is_late] ), SUM ( fact_orders[has_delivery_date] ) )
+
+    // Average days from purchase to delivery (blank for undelivered orders, so they are ignored).
+    MEASURE fact_orders[Avg Delivery Days] =
+        AVERAGE ( fact_orders[days_to_deliver] )
+
+    // Average days between promised and actual delivery: negative = early, positive = late.
+    MEASURE fact_orders[Avg Delay vs Promise] =
+        AVERAGE ( fact_orders[delivery_delay_days] )
+
+    // Average review score (1-5) on delivered orders that were reviewed.
+    MEASURE fact_orders[Avg Review Score] =
+        CALCULATE ( AVERAGE ( fact_orders[review_score] ), fact_orders[is_delivered] = 1 )
+
+    // Share of reviewed delivered orders rated 1 or 2 stars.
+    MEASURE fact_orders[Low Review %] =
+        DIVIDE (
+            CALCULATE ( SUM ( fact_orders[is_low_review] ), fact_orders[is_delivered] = 1 ),
+            CALCULATE ( COUNT ( fact_orders[review_score] ), fact_orders[is_delivered] = 1 )
+        )
+
+    // Average review score of orders that arrived late.
+    MEASURE fact_orders[Avg Review - Late] =
+        CALCULATE ( [Avg Review Score], fact_orders[delivery_status] = "Late" )
+
+    // Average review score of orders that arrived on time.
+    MEASURE fact_orders[Avg Review - On Time] =
+        CALCULATE ( [Avg Review Score], fact_orders[delivery_status] = "On time" )
+
+    // ------------------------------------------------------ PRODUCTS & SELLERS
+    // A category's share of total revenue (ignores any product filter in the denominator).
+    MEASURE fact_orders[Category Revenue Share %] =
+        DIVIDE ( [Total Revenue], CALCULATE ( [Total Revenue], REMOVEFILTERS ( dim_product ) ) )
+
+    // Rank of the category by revenue (1 = largest).
+    MEASURE fact_orders[Category Rank] =
+        IF (
+            HASONEVALUE ( dim_product[category] ),
+            RANKX ( ALL ( dim_product[category] ), [Total Revenue],, DESC, DENSE )
+        )
+
+    // Pareto: cumulative revenue share of this category and every larger category.
+    MEASURE fact_orders[Pareto Cumulative %] =
+        IF (
+            HASONEVALUE ( dim_product[category] ),
+            VAR CurrentRevenue = [Total Revenue]
+            VAR Categories =
+                ADDCOLUMNS ( ALL ( dim_product[category] ), "@Revenue", [Total Revenue] )
+            VAR RunningRevenue =
+                SUMX ( FILTER ( Categories, [@Revenue] >= CurrentRevenue ), [@Revenue] )
+            RETURN
+                DIVIDE ( RunningRevenue, SUMX ( Categories, [@Revenue] ) )
+        )
+
+    // Sellers with at least one delivered item in context.
+    MEASURE fact_orders[Active Sellers] =
+        CALCULATE ( DISTINCTCOUNT ( fact_order_items[seller_key] ), fact_order_items[is_delivered] = 1 )
+
+    // Late-delivery rate that responds to product and seller filters (counted per distinct order).
+    MEASURE fact_orders[Late Delivery % (Product View)] =
+        DIVIDE (
+            CALCULATE (
+                DISTINCTCOUNT ( fact_order_items[order_id] ),
+                fact_order_items[delivery_status] = "Late"
+            ),
+            CALCULATE (
+                DISTINCTCOUNT ( fact_order_items[order_id] ),
+                fact_order_items[delivery_status] IN { "Late", "On time" }
+            )
+        )
+
+    // Average review score that responds to product and seller filters: one score per
+    // distinct order, so multi-item orders are not double counted.
+    MEASURE fact_orders[Avg Review (Product View)] =
+        CALCULATE (
+            AVERAGEX (
+                VALUES ( fact_order_items[order_id] ),
+                CALCULATE ( MAX ( fact_order_items[review_score] ) )
+            ),
+            fact_order_items[is_delivered] = 1
+        )
+
+    // --------------------------------------------------------------- PAYMENTS
+    // Share of delivered orders whose main payment method is credit card.
+    MEASURE fact_orders[Credit Card Order Share] =
+        DIVIDE (
+            CALCULATE ( [Delivered Orders], fact_orders[payment_type] = "credit_card" ),
+            [Delivered Orders]
+        )
+
+    // Average number of instalments on delivered credit-card orders.
+    MEASURE fact_orders[Avg Installments (Card)] =
+        CALCULATE (
+            AVERAGE ( fact_orders[payment_installments] ),
+            fact_orders[is_delivered] = 1,
+            fact_orders[payment_type] = "credit_card"
+        )
+
+// -----------------------------------------------------------------------------
+// Self-check: run this query with NO filters and compare the single row with the
+// "No filters" rows in EXPECTED_VALUES.md.
+// -----------------------------------------------------------------------------
+EVALUATE
+    ROW (
+        "Total Revenue", [Total Revenue],
+        "Total Orders", [Total Orders],
+        "AOV", [AOV],
+        "Active Customers", [Active Customers],
+        "Repeat Customer Rate", [Repeat Customer Rate],
+        "Late Delivery %", [Late Delivery %],
+        "Avg Delivery Days", [Avg Delivery Days],
+        "Avg Review Score", [Avg Review Score],
+        "Low Review %", [Low Review %]
+    )

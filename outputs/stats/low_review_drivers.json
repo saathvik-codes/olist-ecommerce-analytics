@@ -1,0 +1,179 @@
+{
+  "test": "Logistic regression: drivers of a low review (score <= 2)",
+  "n_train": 76778,
+  "n_test": 19045,
+  "low_review_rate_pct": 12.81,
+  "mcfadden_pseudo_r2": 0.182,
+  "llr_p_value": 0.0,
+  "auc_test_full_model": 0.7469,
+  "auc_test_late_flag_only": 0.6478,
+  "converged": true,
+  "coefficients": [
+    {
+      "predictor": "is_late",
+      "odds_ratio": 6.906,
+      "or_ci95": [
+        6.323,
+        7.542
+      ],
+      "p_value": 0.0,
+      "avg_marginal_effect_pp": 30.06,
+      "ame_ci95_pp": [
+        28.13,
+        31.99
+      ],
+      "vif": 1.71
+    },
+    {
+      "predictor": "delivery_weeks",
+      "odds_ratio": 1.432,
+      "or_ci95": [
+        1.399,
+        1.466
+      ],
+      "p_value": 2.233803646509043e-197,
+      "avg_marginal_effect_pp": 3.19,
+      "ame_ci95_pp": [
+        2.98,
+        3.4
+      ],
+      "vif": 1.98
+    },
+    {
+      "predictor": "multi_seller",
+      "odds_ratio": 3.888,
+      "or_ci95": [
+        3.385,
+        4.466
+      ],
+      "p_value": 3.057347508314464e-82,
+      "avg_marginal_effect_pp": 17.91,
+      "ame_ci95_pp": [
+        15.42,
+        20.4
+      ],
+      "vif": 1.14
+    },
+    {
+      "predictor": "multi_item",
+      "odds_ratio": 3.052,
+      "or_ci95": [
+        2.842,
+        3.278
+      ],
+      "p_value": 2.084472121901649e-206,
+      "avg_marginal_effect_pp": 12.98,
+      "ame_ci95_pp": [
+        11.94,
+        14.02
+      ],
+      "vif": 1.25
+    },
+    {
+      "predictor": "log_order_value",
+      "odds_ratio": 1.045,
+      "or_ci95": [
+        1.007,
+        1.084
+      ],
+      "p_value": 0.01919665612348798,
+      "avg_marginal_effect_pp": 0.39,
+      "ame_ci95_pp": [
+        0.06,
+        0.72
+      ],
+      "vif": 2.12
+    },
+    {
+      "predictor": "freight_ratio",
+      "odds_ratio": 1.103,
+      "or_ci95": [
+        0.987,
+        1.232
+      ],
+      "p_value": 0.08308542524360649,
+      "avg_marginal_effect_pp": 0.87,
+      "ame_ci95_pp": [
+        -0.11,
+        1.85
+      ],
+      "vif": 2.11
+    },
+    {
+      "predictor": "paid_by_boleto",
+      "odds_ratio": 0.87,
+      "or_ci95": [
+        0.819,
+        0.925
+      ],
+      "p_value": 6.559052405903506e-06,
+      "avg_marginal_effect_pp": -1.2,
+      "ame_ci95_pp": [
+        -1.71,
+        -0.69
+      ],
+      "vif": 1.01
+    },
+    {
+      "predictor": "region_South",
+      "odds_ratio": 0.751,
+      "or_ci95": [
+        0.699,
+        0.808
+      ],
+      "p_value": 1.223811451293353e-14,
+      "avg_marginal_effect_pp": -2.39,
+      "ame_ci95_pp": [
+        -2.96,
+        -1.82
+      ],
+      "vif": 1.08
+    },
+    {
+      "predictor": "region_Northeast",
+      "odds_ratio": 0.746,
+      "or_ci95": [
+        0.685,
+        0.812
+      ],
+      "p_value": 1.25901768045876e-11,
+      "avg_marginal_effect_pp": -2.43,
+      "ame_ci95_pp": [
+        -3.08,
+        -1.77
+      ],
+      "vif": 1.22
+    },
+    {
+      "predictor": "region_North",
+      "odds_ratio": 0.594,
+      "or_ci95": [
+        0.496,
+        0.711
+      ],
+      "p_value": 1.53638855925422e-08,
+      "avg_marginal_effect_pp": -3.99,
+      "ame_ci95_pp": [
+        -5.17,
+        -2.81
+      ],
+      "vif": 1.08
+    },
+    {
+      "predictor": "region_Center-West",
+      "odds_ratio": 0.855,
+      "or_ci95": [
+        0.773,
+        0.947
+      ],
+      "p_value": 0.00261202034300748,
+      "avg_marginal_effect_pp": -1.33,
+      "ame_ci95_pp": [
+        -2.16,
+        -0.5
+      ],
+      "vif": 1.05
+    }
+  ],
+  "seed": 42
+}

@@ -1,0 +1,94 @@
+{
+  "test": "Late delivery vs review score",
+  "n_orders": 95824,
+  "late_share_pct": 6.66,
+  "all_orders": {
+    "on_time": {
+      "n": 89443,
+      "mean": 4.29,
+      "median": 5.0,
+      "sd": 1.149,
+      "score_distribution_pct": [
+        6.62,
+        2.65,
+        8.07,
+        20.39,
+        62.27
+      ],
+      "low_review_rate_pct": 9.27,
+      "five_star_rate_pct": 62.27
+    },
+    "late": {
+      "n": 6381,
+      "mean": 2.27,
+      "median": 1.0,
+      "sd": 1.571,
+      "score_distribution_pct": [
+        53.77,
+        8.65,
+        10.88,
+        10.17,
+        16.53
+      ],
+      "low_review_rate_pct": 62.42,
+      "five_star_rate_pct": 16.53
+    },
+    "mann_whitney_u": {
+      "u_statistic": 467430237.0,
+      "p_value": 0.0,
+      "auc_probability_of_superiority": 0.819,
+      "rank_biserial_correlation": 0.638
+    },
+    "mean_difference_on_time_minus_late": 2.0199,
+    "mean_diff_ci95": [
+      1.981,
+      2.0591
+    ],
+    "auc_ci95": [
+      0.8131,
+      0.8249
+    ],
+    "chi_square": {
+      "chi2": 16748.6,
+      "dof": 4,
+      "p_value": 0.0,
+      "cramers_v": 0.4181
+    },
+    "low_review": {
+      "rate_on_time_pct": 9.27,
+      "rate_late_pct": 62.42,
+      "risk_difference_pp": 53.15,
+      "risk_difference_ci95_pp": [
+        51.94,
+        54.35
+      ],
+      "risk_ratio": 6.735,
+      "risk_ratio_ci95": [
+        6.55,
+        6.927
+      ]
+    }
+  },
+  "sensitivity_first_order_per_customer": {
+    "n_orders": 92735,
+    "auc_probability_of_superiority": 0.8194,
+    "mean_difference_on_time_minus_late": 2.0227,
+    "mean_diff_ci95": [
+      1.982,
+      2.062
+    ],
+    "risk_ratio_low_review": 6.74
+  },
+  "spearman_days_to_deliver_vs_review": {
+    "rho": -0.2349,
+    "ci95": [
+      -0.241,
+      -0.2287
+    ],
+    "p_value": 0.0
+  },
+  "bootstrap": {
+    "resamples": 5000,
+    "seed": 42
+  }
+}

@@ -1,0 +1,6 @@
+installment_band,orders,pct_of_card_orders,revenue,pct_of_card_revenue,avg_order_value,median_order_value,aov_multiple_of_pay_in_full
+1. pay in full,23357,32.07,1926093.31,18.46,82.46,55.0,1.0
+2. 2-3 instalments,22020,30.24,2502391.42,23.99,113.64,89.99,1.38
+3. 4-6 instalments,15696,21.55,2463035.35,23.61,156.92,107.0,1.9
+4. 7-10 instalments,11423,15.69,3433976.8,32.92,300.62,179.49,3.65
+5. 11+ instalments,329,0.45,105959.81,1.02,322.07,185.0,3.91
